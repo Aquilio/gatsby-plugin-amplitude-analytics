@@ -1,13 +1,13 @@
 import React from "react"
 import PropTypes from "prop-types"
 
-function OutboundLink(props) {
+function OutboundLink({ href, target, onClick, eventData = {}, ...props}) {
   return (
     <a
       {...props}
       onClick={e => {
-        if (typeof props.onClick === `function`) {
-          props.onClick()
+        if (typeof onClick === `function`) {
+          onClick()
         }
         let redirect = true
         if (
@@ -20,20 +20,21 @@ function OutboundLink(props) {
         ) {
           redirect = false
         }
-        if (props.target && props.target.toLowerCase() !== `_self`) {
+        if (target && target.toLowerCase() !== `_self`) {
           redirect = false
         }
         if (typeof window.amplitude === 'object') {
           window.amplitude.getInstance().logEvent(window.amplitudeEventTypes.outboundLinkClick, {
-            href: props.href,
+            href,
+            ...eventData
           }, () => {
             if (redirect) {
-              document.location = props.href
+              document.location = href
             }
           })
         } else {
           if (redirect) {
-            document.location = props.href
+            document.location = href
           }
         }
 
@@ -47,6 +48,7 @@ OutboundLink.propTypes = {
   href: PropTypes.string,
   target: PropTypes.string,
   onClick: PropTypes.func,
+  eventData: PropTypes.object
 }
 
 export { OutboundLink }
